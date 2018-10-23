@@ -22,25 +22,41 @@ app.use(express.static("public"));
 //Mongoose and DB set up
 var db = require("./models");
 mongoose.connect("mongodb://localhost/MongoHeadlinesScraper", { useNewUrlParser: true });
+mongoose.Promise = Promise;
 
 //Route Setup
 app.get("/scrape", (req, res) => {
     axios.get("https://medium.com/topic/technology").then(response => {
-    var $ = cheerio.load(response.data);
-    console.log($);
+        var $ = cheerio.load(response.data);
 
-    db.Article.create(result)
-        .then(dbArticle => {
-          console.log(dbArticle);
-        })
-        .catch(err => {res.json(err);
+        // Now, we grab every h2 within an article tag, and do the following:
+        $("div fa").each((index, element) => {
+            // Save an empty result object
+            var result = {};
+
+            // Add the text and href of every link, and save them as properties of the result object
+            result.title = $(this)
+                .children("h3")
+                .text();
+            result.link = $(this)
+                .children("a")
+                .attr("href");
+            console.log("TestScrape", result);
+            db.Article.create(result)
+                .then(dbArticle => {
+                    console.log(dbArticle);
+                })
+                .catch(err => {
+                    res.json(err);
+                });
         });
+    res.send("Scrape Complete");
     });
 });
 
 
 
 // Start the server
-app.listen(PORT, function() {
+app.listen(PORT, function () {
     console.log(`App running on port ${PORT}!`);
-  });
+});

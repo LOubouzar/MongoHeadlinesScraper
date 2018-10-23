@@ -29,14 +29,14 @@ app.get("/scrape", (req, res) => {
     axios.get("https://medium.com/topic/technology").then(response => {
         var $ = cheerio.load(response.data);
 
-        // Now, we grab every h2 within an article tag, and do the following:
+        // Grabbing the latest articles on medium's tech page
         $("div fa").each((index, element) => {
             // Save an empty result object
             var result = {};
 
             // Add the text and href of every link, and save them as properties of the result object
             result.title = $(this)
-                .children("h3")
+                .children(".h3")
                 .text();
             result.link = $(this)
                 .children("a")
